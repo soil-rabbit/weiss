@@ -1,0 +1,5 @@
+.title { text-align: center; }
+.table { border: solid 1px black; margin: auto;}
+.table tr { border: solid 1px black;}
+.table tr td { border: solid 1px black; width: 120px;}
+.table img { width: 120px; }
