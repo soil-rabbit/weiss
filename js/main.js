@@ -52,11 +52,55 @@ async function checkImageExists(url) {
 
 
 async function loadImages() {
-    var image_exists = true; // 이미지 존재 여부 체크
+    //var image_exists = true; // 이미지 존재 여부 체크
     list_counter = 0; // 로드된 이미지 개수 초기화
 
-    let promises = [];
+    cardlistHTML.innerHTML = ""; // 기존 카드 리스트 초기화
 
+    const imagePromises = [];
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 1; i <= total_images; i++) {
+        const imgSrc = `./title/${tn}/images/${pn}/${i}.png`;
+        const imgElement = document.createElement("img");
+
+        imgElement.classList.add("listcard");
+        imgElement.setAttribute("alt", i);
+        imgElement.setAttribute("value", i);
+        imgElement.setAttribute("data-src", imgSrc); // Lazy Loading 적용 (초기 로드 X)
+        imgElement.style.opacity = "0"; // 처음에는 숨김 (애니메이션 효과)
+
+        // 프리로드 및 존재 여부 확인 후 로드
+        let promise = new Promise(resolve => {
+            const preloadImage = new Image();
+            preloadImage.src = imgSrc;
+
+            preloadImage.onload = () => {
+                imgElement.src = imgSrc;
+                list_counter++;
+                imgElement.style.opacity = "1"; // 이미지 로딩 후 나타나도록 애니메이션 효과
+                resolve();
+            };
+
+            preloadImage.onerror = () => {
+                imgElement.src = `./title/${tn}/images/${pn}/400x559.png`; // 기본 이미지 설정
+                resolve();
+            };
+        });
+
+        imagePromises.push(promise);
+
+        const tdElement = document.createElement("td");
+        tdElement.classList.add("td_width");
+        tdElement.appendChild(imgElement);
+        fragment.appendChild(tdElement);
+    }
+
+    await Promise.all(imagePromises); // 모든 이미지 병렬 로딩 완료 후 UI 업데이트
+    cardlistHTML.appendChild(fragment);
+/*
+    let promises = [];
+    
     for (let i = 1; i <= total_images; i++) {
         if (!image_exists) break; // 존재하지 않는 이미지가 발견되면 즉시 중단
         const imgSrc = `./title/${tn}/images/${pn}/${i}.png`;
@@ -72,20 +116,10 @@ async function loadImages() {
         });
 
         promises.push(promise);
-        /*
-        if (await checkImageExists(imgSrc)) {
-            const img = new Image();
-            img.src = imgSrc;
-            list_counter++;
-        } else {
-            image_exists = false;
-            break; // 존재하지 않는 이미지가 발견되면 로딩 중단
-        }
-        */
     }
 
     await Promise.all(promises); // 모든 이미지 존재 여부 체크 후 진행
-
+*/
     // 카드 리스트 표시
     if(tn === "oshinoko" && pn === "osk-booster2"){ // 신작UI따로 표시
         write_cardlist_new();
@@ -93,7 +127,7 @@ async function loadImages() {
     else{
         write_cardlist();
     }
-        
+    lazyLoadImages();
     // 카드이미지 클릭시 확대
     function expansion(src){
         modal.style.display = "block";
@@ -204,12 +238,6 @@ title_name.addEventListener('change', function() {
         const optionElement = document.createElement('option');
         optionElement.value = item.value;
         optionElement.text = item.text;
-        /*if (item.value === "null") { // 기본 선택할 값 지정
-            optionElement.selected = true;
-        }
-        if (item.value === "osk-booster2") { // 기본 선택할 값 지정
-            optionElement.selected = true;
-        }*/
         product_name.appendChild(optionElement);
         lastOptionElement = optionElement; // 마지막으로 추가된 옵션을 저장
     });
