@@ -97,11 +97,19 @@ async function loadImages() {
         BI.innerHTML = `<img src="${src}" style="width: 400px;" />`;
     }
     $("img").click(function() {
+        const absloute_path = this.src; // 절대경로
+        const base_path = location.origin + location.pathname.replace(/\/[^/]*$/, ""); // 사이트 루트
+        const relative_path = absloute_path.replace(base_path + "/", ""); // 상대경로로 변환
+        
         const excludedImages = [
-            `file:///D:/wstcg-cardlist/title/${tn}/images/${pn}/400x559.png`
+            `title/${tn}/images/${pn}/400x559.png` // 상대경로로 변경
         ];
-        if (!excludedImages.includes(this.src)) { 
-            expansion(this.src); // 제외할 이미지가 아닌 경우 실행
+
+        console.log("relative_path : " + relative_path);
+        console.log("제외하고싶은거 : title/oshinoko/images/osk-booster2/400x559.png")
+
+        if (!excludedImages.includes(relative_path)) { 
+            expansion(relative_path); // 제외할 이미지가 아닌 경우 실행
         }
     });    
 }
