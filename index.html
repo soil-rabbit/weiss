@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main</title>
+    <link href="./css/main.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="title">
+        <h1 class="text_center">ヴァイスシュヴァルツ</h1>
+        <p id="output"></p>
+    </div>
+    <div class="category_select">
+        <label for="title_name">ネオスタンダード区分 : </label>
+        <select id="title_name">
+            <option value="null" selected=selected>-- 選択なし --</option>
+            <option value="oshinoko">押しの子</option>
+            <option value="test">test</option>
+        </select>
+        <label for="product_name">商品名 : </label>
+        <select id="product_name">
+            <option value="">-- 選択なし --</option>
+        </select>
+    </div>
+    <div class="field">
+        <div class="cardlist" id="cardlist"></div> <!-- 카드리스트 테이블 -->
+        
+        <div class="deck" id="deck"></div> <!-- 덱레시피 테이블 -->
+    </div>
+</body>
+
+<!-- 카드 확대 모달창 -->
+<div id="modal">
+    <div class="modal-content">
+        <button id="close-modal">X</button>
+        <div id="big_image"></div>
+    </div>
+</div>
+<script type="text/javascript" src="./js/main.js"></script>
+</html>
