@@ -33,8 +33,9 @@ const product_option = {
     ]
 };
 
+let loadImagesTimeout;
+
 async function loadImages() {
-    //var image_exists = true; // 이미지 존재 여부 체크
     list_counter = 0; // 로드된 이미지 개수 초기화
 
     cardlistHTML.innerHTML = ""; // 기존 카드 리스트 초기화
@@ -96,20 +97,16 @@ async function loadImages() {
         var BI = document.getElementById('big_image');
         BI.innerHTML = `<img src="${src}" style="width: 400px;" />`;
     }
-    $("img").click(function() {
-        const absloute_path = this.src; // 절대경로
-        const base_path = location.origin + location.pathname.replace(/\/[^/]*$/, ""); // 사이트 루트
-        const relative_path = absloute_path.replace(base_path + "/", ""); // 상대경로로 변환
+    $("img").off("click").on("click", function(e) {
+        e.stopPropagation(); // jQuery 이벤트 버블링 방지 : 버블링이란 자식 요소에서 발생한 이벤트가 부모 요소로 전파되는 현상
         
-        const excludedImages = [
-            `title/${tn}/images/${pn}/400x559.png` // 상대경로로 변경
-        ];
+        const absloute_path = this.src; // 절대경로
+        const fileName = absloute_path.split("/").pop(); // 경로를 '/' 기준으로 나눈 후 마지막 요소(파일명) 가져오기
+        
+        const excludedImages = [`400x559.png`]; // 제외할 파일명 목록
 
-        console.log("relative_path : " + relative_path);
-        console.log("제외하고싶은거 : title/oshinoko/images/osk-booster2/400x559.png")
-
-        if (!excludedImages.includes(relative_path)) { 
-            expansion(relative_path); // 제외할 이미지가 아닌 경우 실행
+        if (!excludedImages.includes(fileName)) { 
+            expansion(absloute_path); // 제외할 이미지가 아닌 경우 실행
         }
     });    
 }
@@ -172,7 +169,9 @@ function write_deck(){
     for(let i = 1; i <= 5; i++){
         txt += `<tr>`;
         for(let j = (i-1)*10+1; j <= i*10 ; j++){
-            txt += `<td class="td_width" id="td_deck` + j + `"><img class="deckcard" id="deck` + j + `" src="` + card_img_src + `400x559.png" alt="no image" onclick="expansion(` + j + `)" style="border:solid 1px black;" /></td>`;
+            txt += `<td class="td_width" id="td_deck` + j + `">
+                        <img class="deckcard" id="deck` + j + `" src="` + card_img_src + `400x559.png"
+                        alt="no image" style="border:solid 1px black;" /></td>`;
         }
         txt += `</tr>`;
     }
@@ -217,12 +216,12 @@ title_name.addEventListener('change', function() {
     }
 
     pn = product_name.value; // 상품명 변수저장
-    loadImages();
+    debounceLoadImages(); // 🔴 중복 실행 방지
 });
 
 product_name.addEventListener('change', function() {
     pn = product_name.value; // 상품명 변수저장
-    loadImages();
+    debounceLoadImages(); // 🔴 중복 실행 방지
 })
 
 // Drag & Drop 기능 추가
@@ -355,4 +354,11 @@ function lazyLoadImages() {
     });
 
     lazyImages.forEach(img => observer.observe(img));
+}
+
+function debounceLoadImages() {
+    clearTimeout(loadImagesTimeout);
+    loadImagesTimeout = setTimeout(() => {
+        loadImages();
+    }, 200); // 200ms 딜레이 후 실행
 }
