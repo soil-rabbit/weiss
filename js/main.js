@@ -33,24 +33,6 @@ const product_option = {
     ]
 };
 
-async function checkImageExists_aaa(url) {
-    return new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = url;
-    });
-}
-async function checkImageExists(url) {
-    try {
-        const response = await fetch(url, { method: "HEAD" });
-        return response.ok; // HTTP 상태 코드 200~299이면 true 반환
-    } catch (error) {
-        return false; // 네트워크 오류 시 false 반환
-    }
-}
-
-
 async function loadImages() {
     //var image_exists = true; // 이미지 존재 여부 체크
     list_counter = 0; // 로드된 이미지 개수 초기화
@@ -98,28 +80,7 @@ async function loadImages() {
 
     await Promise.all(imagePromises); // 모든 이미지 병렬 로딩 완료 후 UI 업데이트
     cardlistHTML.appendChild(fragment);
-/*
-    let promises = [];
-    
-    for (let i = 1; i <= total_images; i++) {
-        if (!image_exists) break; // 존재하지 않는 이미지가 발견되면 즉시 중단
-        const imgSrc = `./title/${tn}/images/${pn}/${i}.png`;
-        
-        let promise = checkImageExists(imgSrc).then(exists => {
-            if (exists) {
-                const img = new Image();
-                img.src = imgSrc;
-                list_counter++;
-            } else {
-                image_exists = false; // 이미지 존재하지 않으면 반복 중단
-            }
-        });
 
-        promises.push(promise);
-    }
-
-    await Promise.all(promises); // 모든 이미지 존재 여부 체크 후 진행
-*/
     // 카드 리스트 표시
     if(tn === "oshinoko" && pn === "osk-booster2"){ // 신작UI따로 표시
         write_cardlist_new();
@@ -369,3 +330,21 @@ function loadDeckState() {
 
 // 페이지 로드 시 덱 상태 복원
 window.addEventListener("load", loadDeckState);
+
+// Lazy loading 방식 : 화면에 나타난 이미지만 우선 로드함
+function lazyLoadImages() {
+    const lazyImages = document.querySelectorAll("img.listcard[data-src]");
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.getAttribute("data-src");
+                img.removeAttribute("data-src");
+                observer.unobserve(img);
+            }
+        });
+    });
+
+    lazyImages.forEach(img => observer.observe(img));
+}
