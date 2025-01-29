@@ -33,7 +33,7 @@ const product_option = {
     ]
 };
 
-async function checkImageExists(url) {
+async function checkImageExists_aaa(url) {
     return new Promise(resolve => {
         const img = new Image();
         img.onload = () => resolve(true);
@@ -41,14 +41,38 @@ async function checkImageExists(url) {
         img.src = url;
     });
 }
+async function checkImageExists(url) {
+    try {
+        const response = await fetch(url, { method: "HEAD" });
+        return response.ok; // HTTP 상태 코드 200~299이면 true 반환
+    } catch (error) {
+        return false; // 네트워크 오류 시 false 반환
+    }
+}
+
 
 async function loadImages() {
     var image_exists = true; // 이미지 존재 여부 체크
     list_counter = 0; // 로드된 이미지 개수 초기화
 
+    let promises = [];
+
     for (let i = 1; i <= total_images; i++) {
+        if (!image_exists) break; // 존재하지 않는 이미지가 발견되면 즉시 중단
         const imgSrc = `./title/${tn}/images/${pn}/${i}.png`;
         
+        let promise = checkImageExists(imgSrc).then(exists => {
+            if (exists) {
+                const img = new Image();
+                img.src = imgSrc;
+                list_counter++;
+            } else {
+                image_exists = false; // 이미지 존재하지 않으면 반복 중단
+            }
+        });
+
+        promises.push(promise);
+        /*
         if (await checkImageExists(imgSrc)) {
             const img = new Image();
             img.src = imgSrc;
@@ -57,7 +81,10 @@ async function loadImages() {
             image_exists = false;
             break; // 존재하지 않는 이미지가 발견되면 로딩 중단
         }
+        */
     }
+
+    await Promise.all(promises); // 모든 이미지 존재 여부 체크 후 진행
 
     // 카드 리스트 표시
     if(tn === "oshinoko" && pn === "osk-booster2"){ // 신작UI따로 표시
