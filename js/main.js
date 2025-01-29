@@ -33,33 +33,29 @@ const product_option = {
     ]
 };
 
+async function checkImageExists(url) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+    });
+}
 
 async function loadImages() {
     var image_exists = true; // 이미지 존재 여부 체크
     list_counter = 0; // 로드된 이미지 개수 초기화
 
     for (let i = 1; i <= total_images; i++) {
-        //if (!image_exists) break; // 이미지가 없으면 반복문 종료
-
-        const img = new Image();
-        try {
-            await new Promise((resolve, reject) => {
-                img.onload = function() {
-                    list_counter++;
-                    resolve();
-                };
-
-                img.onerror = function() {
-                    image_exists = false; // 이미지 존재 여부 업데이트
-                    //console.warn(`이미지 없음: ${i}.png`);
-                    reject(`Error: ${i}.png not found`);
-                };
-
-                img.src = `./title/${tn}/images/${pn}/${i}.png`;
-            });
-        } catch (error) {
-            console.error(error);
-            //break; // 오류 발생 시 즉시 `for` 루프 종료
+        const imgSrc = `./title/${tn}/images/${pn}/${i}.png`;
+        
+        if (await checkImageExists(imgSrc)) {
+            const img = new Image();
+            img.src = imgSrc;
+            list_counter++;
+        } else {
+            image_exists = false;
+            break; // 존재하지 않는 이미지가 발견되면 로딩 중단
         }
     }
 
