@@ -229,8 +229,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // 리스트 카드에서 드래그 시작
     document.addEventListener("dragstart", function(event) {
         if (event.target.classList.contains("listcard")) {
+            event.dataTransfer.effectAllowed = "copy"; // listcard는 "복사"가 되도록 설정
             event.dataTransfer.setData("text/plain", event.target.src); // 카드 이미지 URL 저장
             event.dataTransfer.setData("card-value", event.target.getAttribute("value")); // 카드 번호 저장
+        } else if (event.target.classList.contains("deckcard")) {
+            event.dataTransfer.effectAllowed = "move"; // deckcard는 "이동"이 되도록 설정
+            event.dataTransfer.setData("text/plain", event.target.src); // 카드 이미지 URL 저장
+            event.dataTransfer.setData("card-value", event.target.getAttribute("value")); // 카드 번호 저장
+
+            // 드래그 시작한 deckcard의 이미지를 기본 이미지(빈 칸)로 변경하여 이동 효과
+            event.target.src = `./title/${tn}/images/${pn}/400x559.png`;
+            event.target.removeAttribute("value"); // 카드 번호 제거
         }
     });
 
@@ -254,7 +263,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 event.target.setAttribute("value", droppedCardValue); // 카드 번호 저장
             }
             setTimeout(() => {
-                sortDeck(); // 정렬 후 저장
                 saveDeckState();
             }, 100);
         }
@@ -276,7 +284,6 @@ document.addEventListener("contextmenu", function(event) {
                 deckCards[i].src = cardSrc; // 이미지 변경
                 deckCards[i].setAttribute("value", cardValue); // 카드 번호 저장
                 setTimeout(() => {
-                    sortDeck();
                     saveDeckState();
                 }, 100);
                 break; // 한 개만 추가 후 종료
@@ -289,12 +296,12 @@ document.addEventListener("contextmenu", function(event) {
         event.target.src = `./title/${tn}/images/${pn}/400x559.png`; // 기본 이미지로 변경
         event.target.removeAttribute("value"); // 카드 번호 속성 제거
         setTimeout(() => {
-            sortDeck();
             saveDeckState();
         }, 100);
     }
 });
 
+/* DB없이 자동정렬은 무리데쓰 손으로 정렬합시다
 // 덱 정렬 함수: 빈 칸(기본 이미지)을 뒤로 밀고, 추가한 카드를 앞으로 정렬
 function sortDeck() {
     const deckCards = Array.from(document.querySelectorAll(".deckcard"));
@@ -313,6 +320,7 @@ function sortDeck() {
     });
     saveDeckState(); // 덱 정렬 후 자동 저장
 }
+*/
 
 // 로컬 스토리지에 덱 상태 저장
 function saveDeckState() {
