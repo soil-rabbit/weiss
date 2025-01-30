@@ -22,14 +22,10 @@ const product_option = {
         { value: "osk-booster", text: "ブースターパック" },
         { value: "osk-booster2", text: "ブースターパック Vol.2" }
     ],
-    test: [
-        { value: "test1", text: "test111" },
-        { value: "test2", text: "test222" },
-        { value: "test3", text: "test333" },
-        { value: "test4", text: "test444" },
-        { value: "test5", text: "test555" },
-        { value: "test6", text: "test666" },
-        { value: "test7", text: "test777" }
+    lovelive_hasunosora: [
+        { value: "lhs-pr", text: "PRカード" },
+        { value: "lhs-trial", text: "トライアルデッキ" },
+        { value: "lhs-booster", text: "ブースターパック" }
     ]
 };
 
